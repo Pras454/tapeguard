@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TapeGuard Receipts — Verifiable TapeOut circuit checks</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; max-width: 760px; margin-inline: auto; line-height: 1.45; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .sub { opacity: .75; margin-top: 0; }
+  .card { border: 1px solid #8884; border-radius: 12px; padding: 14px; margin: 14px 0; }
+  .bits { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .bit { border: 1px solid #8886; border-radius: 10px; padding: 10px 0; text-align: center; cursor: pointer; font-weight: 700; user-select: none; }
+  .bit.on { background: #16a34a; color: #fff; border-color: #16a34a; }
+  button { border: 0; border-radius: 10px; padding: 12px 16px; font-weight: 700; cursor: pointer; background: #2563eb; color: #fff; }
+  button.secondary { background: #5558; color: inherit; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .out { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+  .cell { border: 1px solid #8884; border-radius: 10px; padding: 10px; text-align: center; }
+  .pass { color: #16a34a; font-weight: 800; }
+  .fail { color: #dc2626; font-weight: 800; }
+  code { word-break: break-all; font-size: .82rem; }
+  .small { font-size: .85rem; opacity: .8; }
+</style>
+</head>
+<body>
+<h1>TapeGuard Receipts</h1>
+<p class="sub">Run four TapeOut guard circuits live on X Layer mainnet and anchor a verifiable receipt of the result.</p>
+
+<div class="card">
+  <strong>1. Set the 16 input bits</strong>
+  <p class="small">Each bit is one risk flag in your agent or trading-bot profile. Presets: Safe profile = all bits off. Risky profile = all bits on.</p>
+  <div class="bits" id="bits"></div>
+  <div class="row">
+    <button class="secondary" id="safe">Safe profile</button>
+    <button class="secondary" id="risky">Risky profile</button>
+  </div>
+  <p class="small">Input bytes: <code id="inputHex">0x0000</code></p>
+</div>
+
+<div class="card">
+  <strong>2. Evaluate on X Layer mainnet</strong>
+  <p class="small">Calls <code>eval(circuitId, input)</code> on TapeOut processor <code>0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb</code> (ViperX Risk Guardian, circuits 1–4) via the public X Layer RPC. Read-only: no wallet, no gas.</p>
+  <button id="run">Run circuit checks</button>
+  <div class="out" id="outputs"></div>
+  <p class="small" id="blockInfo"></p>
+</div>
+
+<div class="card">
+  <strong>3. Receipt</strong>
+  <p class="small">The receipt payload binds processor, input, outputs and mainnet block. Anchoring stores the keccak256 receipt hash computed by <code>TapeGuardRegistry</code> on X Layer testnet; anyone can recompute it from the same payload fields.</p>
+  <p><code id="receipt">Run the checks first.</code></p>
+  <p class="small">Registry (X Layer testnet 1952): <code id="registry">0x576Eab718361Bc9a26EEC4BAe1eAe4Cf043DC806</code></p>
+</div>
+
+<script>
+const RPC = "https://rpc.xlayer.tech";
+const PROCESSOR = "0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb";
+const EVAL_SELECTOR = "0x934d06ea"; // eval(uint256,bytes)
+let bits = new Array(16).fill(0);
+
+function renderBits() {
+  const el = document.getElementById("bits");
+  el.innerHTML = "";
+  bits.forEach((b, i) => {
+    const d = document.createElement("div");
+    d.className = "bit" + (b ? " on" : "");
+    d.textContent = b;
+    d.title = "bit " + i;
+    d.onclick = () => { bits[i] = b ? 0 : 1; renderBits(); };
+    el.appendChild(d);
+  });
+  document.getElementById("inputHex").textContent = "0x" + inputBytes().map(x => x.toString(16).padStart(2, "0")).join("");
+}
+function inputBytes() {
+  const out = [0, 0];
+  bits.forEach((b, i) => { if (b) out[Math.floor(i / 8)] |= (1 << (i % 8)); });
+  return out;
+}
+document.getElementById("safe").onclick = () => { bits = new Array(16).fill(0); renderBits(); };
+document.getElementById("risky").onclick = () => { bits = new Array(16).fill(1); renderBits(); };
+
+async function rpc(method, params) {
+  const r = await fetch(RPC, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error.message || "RPC error");
+  return j.result;
+}
+function u256(n) { return n.toString(16).padStart(64, "0"); }
+async function evalCircuit(id, bytes) {
+  const sel = EVAL_SELECTOR;
+  const data = sel + u256(id) + u256(64) + u256(bytes.length) + bytes.map(x => x.toString(16).padStart(2, "0")).join("").padEnd(64, "0");
+  const res = await rpc("eth_call", [{ to: PROCESSOR, data }, "latest"]);
+  const raw = res.slice(2);
+  const len = parseInt(raw.slice(64, 128), 16);
+  return raw.slice(128, 128 + len * 2);
+}
+document.getElementById("run").onclick = async () => {
+  const out = document.getElementById("outputs");
+  out.innerHTML = "Running…";
+  try {
+    const bytes = inputBytes();
+    const blockHex = await rpc("eth_blockNumber", []);
+    const block = parseInt(blockHex, 16);
+    const results = [];
+    for (let id = 1; id <= 4; id++) {
+      const o = await evalCircuit(id, bytes);
+      results.push(o);
+    }
+    out.innerHTML = results.map((o, i) =>
+      `<div class="cell">Circuit ${i + 1}<br><span class="${o === "01" ? "pass" : "fail"}">${o === "01" ? "PASS" : "BLOCK"}</span><br><code>0x${o}</code></div>`).join("");
+    document.getElementById("blockInfo").textContent = "X Layer mainnet block " + block;
+    const payload = PROCESSOR + "|" + bytes.join(",") + "|" + results.join(",") + "|" + block;
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(payload));
+    const hash = [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join("");
+    document.getElementById("receipt").textContent = "sha256:" + hash + "  (payload: " + payload + ")";
+  } catch (e) {
+    out.innerHTML = "Error: " + e.message;
+  }
+};
+renderBits();
+</script>
+</body>
+</html>
