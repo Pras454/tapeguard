@@ -53,6 +53,10 @@ node deploy.js             # deploys to X Layer testnet and anchors samples
 
 Open `index.html` in a browser to run the live circuit checks.
 
+## Live demo
+
+https://pras454.github.io/tapeguard/
+
 ## Addresses
 
 - TapeOut processor (X Layer mainnet): `0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb`
