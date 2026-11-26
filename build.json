@@ -1,0 +1,234 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "receiptId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recorder",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "processor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "circuitId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "receiptHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "mainnetBlock",
+          "type": "uint256"
+        }
+      ],
+      "name": "ReceiptRecorded",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "processor",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "circuitId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "input",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "output",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "mainnetBlock",
+          "type": "uint256"
+        }
+      ],
+      "name": "computeReceiptHash",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "receiptId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getReceipt",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recorder",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "processor",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "circuitId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "mainnetBlock",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "recordedAt",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct TapeGuardRegistry.Receipt",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "receiptCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "receipts",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "recorder",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "processor",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "circuitId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "receiptHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "mainnetBlock",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "recordedAt",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "processor",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "circuitId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "input",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "output",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "mainnetBlock",
+          "type": "uint256"
+        }
+      ],
+      "name": "recordReceipt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "receiptId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x6080604052348015600e575f5ffd5b506105968061001c5f395ff3fe608060405234801561000f575f5ffd5b5060043610610055575f3560e01c80630f7ee1ec146100595780633e1dfc7f146100a9578063684a2944146100ca5780637f038f3c146100dd578063b63e6ac3146100e4575b5f5ffd5b61006c610067366004610407565b61014c565b604080516001600160a01b039788168152969095166020870152938501929092526060840152608083015260a082015260c0015b60405180910390f35b6100bc6100b7366004610463565b61019c565b6040519081526020016100a0565b6100bc6100d8366004610463565b610309565b5f546100bc565b6100f76100f2366004610407565b61034a565b6040516100a0919081516001600160a01b0390811682526020808401519091169082015260408083015190820152606080830151908201526080808301519082015260a0918201519181019190915260c00190565b5f818154811061015a575f80fd5b5f9182526020909120600690910201805460018201546002830154600384015460048501546005909501546001600160a01b0394851696509390921693909286565b5f5f6101ad89898989898989610309565b90505f8054905091505f6040518060c00160405280336001600160a01b031681526020018b6001600160a01b031681526020018a815260200183815260200185815260200142815250908060018154018082558091505060019003905f5260205f2090600602015f909190919091505f820151815f015f6101000a8154816001600160a01b0302191690836001600160a01b031602179055506020820151816001015f6101000a8154816001600160a01b0302191690836001600160a01b0316021790555060408201518160020155606082015181600301556080820151816004015560a082015181600501555050886001600160a01b0316336001600160a01b0316837f6558d9a128de038c9e3582470757097a62bc6b6ab6b4b2365d3147bf39151d5b8b85886040516102f5939291909283526020830191909152604082015260600190565b60405180910390a450979650505050505050565b5f878787878787876040516020016103279796959493929190610501565b604051602081830303815290604052805190602001209050979650505050505050565b61038f6040518060c001604052805f6001600160a01b031681526020015f6001600160a01b031681526020015f81526020015f81526020015f81526020015f81525090565b5f82815481106103a1576103a161054c565b5f9182526020918290206040805160c081018252600690930290910180546001600160a01b03908116845260018201541693830193909352600283015490820152600382015460608201526004820154608082015260059091015460a082015292915050565b5f60208284031215610417575f5ffd5b5035919050565b5f5f83601f84011261042e575f5ffd5b50813567ffffffffffffffff811115610445575f5ffd5b60208301915083602082850101111561045c575f5ffd5b9250929050565b5f5f5f5f5f5f5f60a0888a031215610479575f5ffd5b87356001600160a01b038116811461048f575f5ffd5b965060208801359550604088013567ffffffffffffffff8111156104b1575f5ffd5b6104bd8a828b0161041e565b909650945050606088013567ffffffffffffffff8111156104dc575f5ffd5b6104e88a828b0161041e565b989b979a50959894979596608090950135949350505050565b6bffffffffffffffffffffffff198860601b168152866014820152848660348301375f858201603481015f815285878237509093016034810192909252506054019695505050505050565b634e487b7160e01b5f52603260045260245ffdfea264697066735822122049cc7954f803eb376e6400a1381a9fb6bf1ae4c3dc84bdd738c2df1b1000720e64736f6c63430008260033"
+}
